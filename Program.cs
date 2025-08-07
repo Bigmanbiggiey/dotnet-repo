@@ -1,104 +1,99 @@
 ﻿using System;
+using System.Collections.Generic;
 
-class Program
+namespace MyConsoleApp
 {
-    static void Main()
+    class Program
     {
-        Console.WriteLine("🧮 Advanced C# Calculator");
-        Console.WriteLine("----------------------------");
-        Console.WriteLine("Available operations: +  -  *  /  %  ^  √");
-        Console.WriteLine("Note: '√' only uses the first number");
-        Console.WriteLine();
+        static List<string> history = new List<string>();
 
-        // Get first number
-        Console.Write("Enter first number: ");
-        string? input1 = Console.ReadLine();
-        if (!double.TryParse(input1, out double num1))
+        static void Main(string[] args)
         {
-            Console.WriteLine("❌ Invalid number input!");
-            return;
-        }
-
-        // Get operator
-        Console.Write("Enter an operator (+, -, *, /, %, ^, √): ");
-        string? inputOp = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(inputOp))
-        {
-            Console.WriteLine("❌ No operator provided!");
-            return;
-        }
-
-        string op = inputOp.Trim();
-
-        double num2 = 0;
-        double result = 0;
-        bool validOp = true;
-
-        // For everything except square root, ask for a second number
-        if (op != "√")
-        {
-            Console.Write("Enter second number: ");
-            string? input2 = Console.ReadLine();
-            if (!double.TryParse(input2, out num2))
+            Console.WriteLine("Welcome to the Advanced .NET Calculator!");
+            while (true)
             {
-                Console.WriteLine("❌ Invalid number input!");
-                return;
+                Console.WriteLine("\nSelect an option:");
+                Console.WriteLine("1. Calculator");
+                Console.WriteLine("2. View History");
+                Console.WriteLine("3. Clear History");
+                Console.WriteLine("4. Exit");
+                Console.Write("Choice: ");
+                string choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        RunCalculator();
+                        break;
+                    case "2":
+                        ShowHistory();
+                        break;
+                    case "3":
+                        ClearHistory();
+                        break;
+                    case "4":
+                        Console.WriteLine("Goodbye!");
+                        return;
+                    default:
+                        Console.WriteLine("Invalid option.");
+                        break;
+                }
             }
         }
 
-        // Perform operation
-        switch (op)
+        static void RunCalculator()
         {
-            case "+":
-                result = num1 + num2;
-                break;
+            try
+            {
+                Console.Write("\nEnter first number: ");
+                double num1 = Convert.ToDouble(Console.ReadLine());
 
-            case "-":
-                result = num1 - num2;
-                break;
+                Console.Write("Enter operator (+, -, *, /, ^): ");
+                string op = Console.ReadLine();
 
-            case "*":
-                result = num1 * num2;
-                break;
+                Console.Write("Enter second number: ");
+                double num2 = Convert.ToDouble(Console.ReadLine());
 
-            case "/":
-                if (num2 == 0)
+                double result = op switch
                 {
-                    Console.WriteLine("❌ Cannot divide by zero!");
-                    return;
-                }
-                result = num1 / num2;
-                break;
+                    "+" => num1 + num2,
+                    "-" => num1 - num2,
+                    "*" => num1 * num2,
+                    "/" => num2 != 0 ? num1 / num2 : throw new DivideByZeroException(),
+                    "^" => Math.Pow(num1, num2),
+                    _ => throw new InvalidOperationException("Invalid operator")
+                };
 
-            case "%":
-                result = num1 % num2;
-                break;
-
-            case "^":
-                result = Math.Pow(num1, num2);
-                break;
-
-            case "√":
-                if (num1 < 0)
-                {
-                    Console.WriteLine("❌ Cannot take square root of a negative number!");
-                    return;
-                }
-                result = Math.Sqrt(num1);
-                break;
-
-            default:
-                Console.WriteLine("❌ Invalid operator!");
-                validOp = false;
-                break;
+                string log = $"{num1} {op} {num2} = {result}";
+                history.Add(log);
+                Console.WriteLine($"Result: {result}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
         }
 
-        if (validOp)
+        static void ShowHistory()
         {
-            if (op == "√")
-                Console.WriteLine($"✅ Result: √{num1} = {result}");
+            Console.WriteLine("\nCalculation History:");
+            if (history.Count == 0)
+            {
+                Console.WriteLine("No history available.");
+            }
             else
-                Console.WriteLine($"✅ Result: {num1} {op} {num2} = {result}");
+            {
+                foreach (var entry in history)
+                {
+                    Console.WriteLine(entry);
+                }
+            }
+        }
+
+        static void ClearHistory()
+        {
+            history.Clear();
+            Console.WriteLine("History cleared.");
         }
     }
 }
